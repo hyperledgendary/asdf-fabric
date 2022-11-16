@@ -16,8 +16,6 @@
 
 # Dependencies
 
-**TODO: adapt this section**
-
 - `bash`, `curl`, `tar`: generic POSIX utilities.
 - `SOME_ENV_VAR`: set this environment variable in your shell config to load the correct version of tool x.
 
@@ -26,9 +24,7 @@
 Plugin:
 
 ```shell
-asdf plugin add fabric
-# or
-asdf plugin add fabric https://github.com/mbwhite/asdf-fabric.git
+asdf plugin add fabric https://github.com/hyperledgendary/asdf-fabric
 ```
 
 fabric:

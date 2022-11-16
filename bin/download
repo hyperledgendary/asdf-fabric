@@ -16,17 +16,19 @@ mkdir -p "$ASDF_DOWNLOAD_PATH"
 
 ARCH=$(echo "$(uname -s|tr '[:upper:]' '[:lower:]'|sed 's/mingw64_nt.*/windows/')-$(uname -m |sed 's/x86_64/amd64/g')" |sed 's/darwin-arm64/darwin-amd64/g')
 
-BINARY_FILE=hyperledger-fabric-${ARCH}-${VERSION}.tar.gz
+FABRIC_VERSION=${ASDF_INSTALL_VERSION}
+CA_VERSION="1.5.5"
+
+BINARY_FILE=hyperledger-fabric-${ARCH}-${ASDF_INSTALL_VERSION}.tar.gz
 CA_BINARY_FILE=hyperledger-fabric-ca-${ARCH}-${CA_VERSION}.tar.gz
 
-FABRIC_TAG=${ASDF_INSTALL_VERSION}
-CA_VERSION="1.5.5"
+
 
 
 
 pullBinaries() {
-    echo "===> Downloading version ${FABRIC_TAG} platform specific fabric binaries"
-    download "${BINARY_FILE}" "https://github.com/hyperledger/fabric/releases/download/v${VERSION}/${BINARY_FILE}"
+    echo "===> Downloading version ${FABRIC_VERSION} platform specific fabric binaries"
+    download "${BINARY_FILE}" "https://github.com/hyperledger/fabric/releases/download/v${ASDF_INSTALL_VERSION}/${BINARY_FILE}"
     if [ $? -eq 22 ]; then
         echo
         echo "------> ${FABRIC_TAG} platform specific fabric binary is not available to download <----"
@@ -34,7 +36,7 @@ pullBinaries() {
         exit
     fi
 
-    echo "===> Downloading version ${CA_TAG} platform specific fabric-ca-client binary"
+    echo "===> Downloading version ${CA_VERSION} platform specific fabric-ca-client binary"
     download "${CA_BINARY_FILE}" "https://github.com/hyperledger/fabric-ca/releases/download/v${CA_VERSION}/${CA_BINARY_FILE}"
     if [ $? -eq 22 ]; then
         echo
@@ -51,13 +53,9 @@ download() {
     
     echo "===> Downloading: " "${URL}"
     echo "===> Will unpack to: ${ASDF_DOWNLOAD_PATH}"
-    curl -L --retry 5 --retry-delay 3 "${URL}" | tar xz -C ${ASDF_DOWNLOAD_PATH}|| rc=$?
-    if [ -n "$rc" ]; then
-        echo "==> There was an error downloading the binary file."
-        return 22
-    else
-        echo "==> Done."
-    fi
+    curl -L --retry 5 --retry-delay 3 "${URL}" | tar xz -C ${ASDF_DOWNLOAD_PATH}
+
+
 }
 
 
