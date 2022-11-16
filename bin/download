@@ -11,13 +11,58 @@ source "${plugin_dir}/lib/utils.bash"
 mkdir -p "$ASDF_DOWNLOAD_PATH"
 
 # TODO: Adapt this to proper extension and adapt extracting strategy.
-release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.tar.gz"
-
-# Download tar.gz file to the download directory
-download_release "$ASDF_INSTALL_VERSION" "$release_file"
-
 #  Extract contents of tar.gz file into the download directory
-tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1 || fail "Could not extract $release_file"
+# tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1 || fail "Could not extract $release_file"
 
-# Remove the tar.gz file since we don't need to keep it
-rm "$release_file"
+ARCH=$(echo "$(uname -s|tr '[:upper:]' '[:lower:]'|sed 's/mingw64_nt.*/windows/')-$(uname -m |sed 's/x86_64/amd64/g')" |sed 's/darwin-arm64/darwin-amd64/g')
+
+BINARY_FILE=hyperledger-fabric-${ARCH}-${VERSION}.tar.gz
+CA_BINARY_FILE=hyperledger-fabric-ca-${ARCH}-${CA_VERSION}.tar.gz
+
+FABRIC_TAG=${ASDF_INSTALL_VERSION}
+CA_VERSION="1.5.5"
+
+
+
+pullBinaries() {
+    echo "===> Downloading version ${FABRIC_TAG} platform specific fabric binaries"
+    download "${BINARY_FILE}" "https://github.com/hyperledger/fabric/releases/download/v${VERSION}/${BINARY_FILE}"
+    if [ $? -eq 22 ]; then
+        echo
+        echo "------> ${FABRIC_TAG} platform specific fabric binary is not available to download <----"
+        echo
+        exit
+    fi
+
+    echo "===> Downloading version ${CA_TAG} platform specific fabric-ca-client binary"
+    download "${CA_BINARY_FILE}" "https://github.com/hyperledger/fabric-ca/releases/download/v${CA_VERSION}/${CA_BINARY_FILE}"
+    if [ $? -eq 22 ]; then
+        echo
+        echo "------> ${CA_TAG} fabric-ca-client binary is not available to download  (Available from 1.1.0-rc1) <----"
+        echo
+        exit
+    fi
+}
+
+# This will download the .tar.gz
+download() {
+    local BINARY_FILE=$1
+    local URL=$2
+    
+    echo "===> Downloading: " "${URL}"
+    echo "===> Will unpack to: ${ASDF_DOWNLOAD_PATH}"
+    curl -L --retry 5 --retry-delay 3 "${URL}" | tar xz -C ${ASDF_DOWNLOAD_PATH}|| rc=$?
+    if [ -n "$rc" ]; then
+        echo "==> There was an error downloading the binary file."
+        return 22
+    else
+        echo "==> Done."
+    fi
+}
+
+
+
+
+pullBinaries
+
+

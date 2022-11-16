@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for fabric.
-GH_REPO="https://github.com/hyperledgendary/asdf-fabric"
+GH_REPO="https://github.com/hyperledger/fabric"
 TOOL_NAME="fabric"
 TOOL_TEST="peer version"
 
