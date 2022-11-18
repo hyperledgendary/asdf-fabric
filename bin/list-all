@@ -8,5 +8,5 @@ plugin_dir=$(dirname "$(dirname "$current_script_path")")
 # shellcheck source=../lib/utils.bash
 source "${plugin_dir}/lib/utils.bash"
 
-# list_all_versions > file.txt
+# list_all_versions but only the 2+.2.x verions
 list_all_versions | sed -E -n '/2.[2-9].[0-9][0-9]?/p' | sort_versions | xargs echo

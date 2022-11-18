@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+current_script_path=${BASH_SOURCE[0]}
+plugin_dir=$(dirname "$(dirname "$current_script_path")")
+
+# shellcheck source=../lib/utils.bash
+source "${plugin_dir}/lib/utils.bash"
+
+echo "Uninstalling Fabric ${ASDF_FABRIC_VERSION}"
+
+# remove the directory...
+rm -rf "${ASDF_INSTALL_PATH}"
+
+# delete the docker images
+# not use the image id as that will remove all images under all different tags
+# better that just using the tag
+docker images --filter=reference="hyperledger/*:${ASDF_FABRIC_VERSION}" --format "{{.ID}}" | xargs --verbose -I {} docker rmi --force {}

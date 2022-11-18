@@ -10,21 +10,50 @@ source "${plugin_dir}/lib/utils.bash"
 
 mkdir -p "$ASDF_DOWNLOAD_PATH"
 
-# TODO: Adapt this to proper extension and adapt extracting strategy.
-#  Extract contents of tar.gz file into the download directory
 # tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1 || fail "Could not extract $release_file"
 
 ARCH=$(echo "$(uname -s|tr '[:upper:]' '[:lower:]'|sed 's/mingw64_nt.*/windows/')-$(uname -m |sed 's/x86_64/amd64/g')" |sed 's/darwin-arm64/darwin-amd64/g')
 
 FABRIC_VERSION=${ASDF_INSTALL_VERSION}
 CA_VERSION="1.5.5"
+FABRIC_TAG=${FABRIC_VERSION}
+CA_TAG=${CA_VERSION}
 
 BINARY_FILE=hyperledger-fabric-${ARCH}-${ASDF_INSTALL_VERSION}.tar.gz
 CA_BINARY_FILE=hyperledger-fabric-ca-${ARCH}-${CA_VERSION}.tar.gz
+CONTAINER_CLI=docker
 
+singleImagePull() {
+    
+    three_digit_image_tag=$1
+    shift
+    #two_digit_image_tag is derived, e.g. "1.4", especially useful as a local tag for two digit references to most recent baseos, ccenv, javaenv, nodeenv patch releases
+    two_digit_image_tag=$(echo "$three_digit_image_tag" | cut -d'.' -f1,2)
+    while [[ $# -gt 0 ]]
+    do
+        image_name="$1"
+        echo "====>  hyperledger/fabric-$image_name:$three_digit_image_tag"
+        ${CONTAINER_CLI} pull "hyperledger/fabric-$image_name:$three_digit_image_tag"
+        ${CONTAINER_CLI} tag "hyperledger/fabric-$image_name:$three_digit_image_tag" "hyperledger/fabric-$image_name:$two_digit_image_tag"
+        shift
+    done
+}
 
+pullImages() {
+    command -v  ${CONTAINER_CLI}  >& /dev/null
+    NODOCKER=$?
 
+    FABRIC_IMAGES=(peer orderer ccenv tools baseos)
 
+    echo "FABRIC_IMAGES:" "${FABRIC_IMAGES[@]}"
+    echo "===> Pulling fabric Images"
+    singleImagePull "${FABRIC_TAG}" "${FABRIC_IMAGES[@]}"
+    echo "===> Pulling fabric ca Image"
+    CA_IMAGE=(ca)
+    singleImagePull "${CA_TAG}" "${CA_IMAGE[@]}"
+    echo "===> List out hyperledger images"
+    ${CONTAINER_CLI} images | grep hyperledger
+}
 
 pullBinaries() {
     echo "===> Downloading version ${FABRIC_VERSION} platform specific fabric binaries"
@@ -53,14 +82,14 @@ download() {
     
     echo "===> Downloading: " "${URL}"
     echo "===> Will unpack to: ${ASDF_DOWNLOAD_PATH}"
-    curl -L --retry 5 --retry-delay 3 "${URL}" | tar xz -C ${ASDF_DOWNLOAD_PATH}
+    curl -s -L --retry 5 --retry-delay 3 "${URL}" | tar xz -C ${ASDF_DOWNLOAD_PATH}
 
 
 }
 
-
-
-
+# get the binary files and the config
 pullBinaries
 
+# pull the images, but don't tag them as latest
+pullImages
 

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# set the FABRIC_CONFIG
+# export FABRIC_LOGGING_SPEC=info
+
+export FABRIC_CFG_PATH="${ASDF_INSTALL_PATH}/config"
