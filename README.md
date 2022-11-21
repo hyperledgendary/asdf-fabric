@@ -14,13 +14,23 @@
 - [Contributing](#contributing)
 - [License](#license)
 
-# Dependencies
-
-- `bash`, `curl`, `tar`
-- `docker` for pulling the docker images
-- `SOME_ENV_VAR`: set this environment variable in your shell config to load the correct version of tool x.
 
 # Install
+
+ASDF:
+
+ASDF needs to be installed first; this isn't quite as daunting as it might look.
+
+```shell
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.2
+
+# Add this to your .bashrc .zshrc or whatever your shell is
+. $HOME/.asdf/asdf.sh
+```
+
+With any changce to the `.xxxrc` I suggest to logout and in again to ensure that changes are picked up. 
+Should you be using a keyboard that doesn't have `a s d f` located sequentialy, you may wish to alias the command
+to another key sequence.
 
 Plugin:
 
@@ -67,9 +77,11 @@ install & manage versions.
 
 
 # TODO
+
 - validate this work on ARM
 - help commands
-- support configuring the level of ca
+- support configuring the level of ca - currently hard coded at 1.5.5
+
 # Contributing
 
 Contributions of any kind welcome! See the [contributing guide](contributing.md).
