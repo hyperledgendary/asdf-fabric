@@ -2,7 +2,14 @@
 
 set -euo pipefail
 
-# set the FABRIC_CONFIG
-# export FABRIC_LOGGING_SPEC=info
+
+if [ -z ${ASDF_FABRIC_DEBUG+x}  ]; then
+    true
+else
+    echo "Running peer command"
+    env | grep "CORE_PEER"
+    env | grep "CA="
+    echo ""
+fi
 
 export FABRIC_CFG_PATH="${ASDF_INSTALL_PATH}/config"
